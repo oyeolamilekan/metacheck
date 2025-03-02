@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ThemeProvider } from "next-themes"
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
-import { fetchMetadata } from "../lib/fetchMetadata"
+import { fetchMetadata } from "../actions/fetchMetadata"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ToggleTheme } from "./ToggleTheme"
@@ -49,8 +49,17 @@ function LinkPreviewerContent() {
             <Package className="w-6 h-6" />
           </div>
           <div className="flex">
-            <ToggleTheme />
-            <Github className="w-6 h-6"/>
+            <div className="flex items-center gap-2">
+              <ToggleTheme />
+              <a
+                href="https://github.com/yourusername/yourrepo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+            </div>
           </div>
         </header>
 

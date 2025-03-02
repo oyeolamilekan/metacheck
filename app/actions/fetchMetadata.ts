@@ -1,10 +1,37 @@
 "use server"
 
 import { load } from "cheerio"
+import { PostHog } from 'posthog-node'
+
+// Initialize PostHog only in production
+const posthog = process.env.NODE_ENV === 'production' 
+  ? new PostHog(
+      process.env.NEXT_PUBLIC_POSTHOG_KEY!,
+      { host: process.env.NEXT_PUBLIC_POSTHOG_HOST }
+    )
+  : null
+
+  console.log(process.env.NODE_ENV)
 
 export async function fetchMetadata(url: string) {
   try {
     const response = await fetch(url)
+
+    posthog?.capture({
+      distinctId: 'server',
+      event: 'link_preview_fetch_attempted',
+      properties: { url }
+    })
+
+    if (!response.ok) {
+      posthog?.capture({
+        distinctId: 'server',
+        event: 'link_preview_failed',
+        properties: { url, error: response.status }
+      })
+      throw new Error(`Failed to fetch the website. Status: ${response.status}`)
+    }
+
     const html = await response.text()
     const $ = load(html)
 
@@ -32,10 +59,21 @@ export async function fetchMetadata(url: string) {
       metadata.image = new URL(metadata.image, url).toString()
     }
 
+    posthog?.capture({
+      distinctId: 'server',
+      event: 'link_preview_success',
+      properties: { url, domain: new URL(url).hostname }
+    })
+
     return metadata
   } catch (error) {
+    posthog?.capture({
+      distinctId: 'server',
+      event: 'link_preview_failed',
+      properties: { url, error: error }
+    })
     console.error("Error fetching metadata:", error)
-    return null
+    throw new Error("Failed to fetch website metadata. Please check the URL and try again.")
   }
 }
 
