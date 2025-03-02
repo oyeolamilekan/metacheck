@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { ThemeProvider } from "next-themes"
-import { fetchMetadata } from "../lib/fetchMetadata"
 import GooglePreview from "./previews/GooglePreview"
 import TwitterPreview from "./previews/TwitterPreview"
 import FacebookPreview from "./previews/FacebookPreview"
