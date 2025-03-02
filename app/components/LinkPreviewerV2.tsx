@@ -132,7 +132,14 @@ function LinkPreviewerContent() {
 
         {/* Footer */}
         <footer className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-          Made by 
+          Made by <a 
+            href="https://mvp.appstate.co/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline-offset-4 hover:underline"
+          >
+            Appstate
+          </a>
         </footer>
       </div>
     </div>
