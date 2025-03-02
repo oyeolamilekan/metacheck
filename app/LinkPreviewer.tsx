@@ -1,16 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useState, type React } from "react"
-import { fetchMetadata } from "../actions/fetchMetadata"
-import GooglePreview from "./previews/GooglePreview"
-import TwitterPreview from "./previews/TwitterPreview"
-import FacebookPreview from "./previews/FacebookPreview"
+import { useState } from "react"
+
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { fetchMetadata } from "./actions/fetchMetadata"
+import GooglePreview from "./components/previews/GooglePreview"
+import TwitterPreview from "./components/previews/TwitterPreview"
+import FacebookPreview from "./components/previews/FacebookPreview"
 
 export default function LinkPreviewer() {
   const [url, setUrl] = useState("")
-  const [metadata, setMetadata] = useState(null)
+  const [metadata, setMetadata] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
