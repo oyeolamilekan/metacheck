@@ -15,7 +15,18 @@ const posthog = process.env.NODE_ENV === 'production'
 
 export async function fetchMetadata(url: string) {
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Referer': 'https://www.google.com/',
+        'Cache-Control': 'max-age=0',
+        'DNT': '1'
+      },
+    })
 
     posthog?.capture({
       distinctId: 'server',
