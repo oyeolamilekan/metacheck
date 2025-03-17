@@ -20,8 +20,8 @@ import DiscordPreview from "./previews/DiscordPreview"
 
 const queryClient = new QueryClient()
 
-function LinkPreviewerContent() {
-  const [url, setUrl] = useState("")
+function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
+  const [url, setUrl] = useState(initialUrl)
 
   const {
     data: metadata,
@@ -32,7 +32,7 @@ function LinkPreviewerContent() {
   } = useQuery({
     queryKey: ["metadata", url],
     queryFn: () => fetchMetadata(url),
-    enabled: false,
+    enabled: !!initialUrl,
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -146,11 +146,11 @@ function LinkPreviewerContent() {
   )
 }
 
-export default function LinkPreviewerV2() {
+export default function LinkPreviewerV2({ initialUrl }: { initialUrl?: string }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <LinkPreviewerContent />
+        <LinkPreviewerContent initialUrl={initialUrl} />
       </ThemeProvider>
     </QueryClientProvider>
   )
