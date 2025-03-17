@@ -52,7 +52,7 @@ function LinkPreviewerContent() {
             <div className="flex items-center gap-2">
               <ToggleTheme />
               <a
-                href="https://github.com/yourusername/yourrepo"
+                href="https://github.com/oyeolamilekan/metacheck"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
