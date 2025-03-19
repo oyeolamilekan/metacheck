@@ -17,6 +17,7 @@ import LinkedInPreview from "./previews/LinkedInPreview"
 import TelegramPreview from "./previews/TelegramPreview"
 import DuckDuckGoPreview from "./previews/DuckDuckGoPreview"
 import DiscordPreview from "./previews/DiscordPreview"
+import MastodonPreview from "./previews/MastodonPreview"
 
 const queryClient = new QueryClient()
 
@@ -145,6 +146,7 @@ function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
               <TelegramPreview metadata={metadata} />
               <DuckDuckGoPreview metadata={metadata} />
               <DiscordPreview metadata={metadata} />
+              <MastodonPreview metadata={metadata} />
             </div>
           )}
         </main>
