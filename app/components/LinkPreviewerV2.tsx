@@ -20,8 +20,22 @@ import DiscordPreview from "./previews/DiscordPreview"
 
 const queryClient = new QueryClient()
 
+const normalizeUrl = (inputUrl: string) => {
+  if (!inputUrl) return ""
+  
+  // Remove any existing scheme
+  let cleanUrl = inputUrl.replace(/^(https?:\/\/)/i, '')
+  
+  // Remove any trailing slashes
+  cleanUrl = cleanUrl.replace(/\/$/, '')
+  
+  // Add https:// scheme
+  return `https://${cleanUrl}`
+}
+
 function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
-  const [url, setUrl] = useState(initialUrl)
+  const [url, setUrl] = useState(normalizeUrl(initialUrl))
+  const normalizedInitialUrl = normalizeUrl(initialUrl)
 
   const {
     data: metadata,
@@ -30,14 +44,19 @@ function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["metadata", url],
-    queryFn: () => fetchMetadata(url),
-    enabled: !!initialUrl,
+    queryKey: ["metadata", normalizeUrl(url)],
+    queryFn: () => fetchMetadata(normalizeUrl(url)),
+    enabled: !!normalizedInitialUrl,
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    refetch()
+    const input = url.trim()
+    if (input) {
+      const normalizedUrl = normalizeUrl(input)
+      setUrl(normalizedUrl)
+      refetch()
+    }
   }
 
   return (
@@ -77,7 +96,7 @@ function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
           {/* URL Input Form */}
           <form onSubmit={handleSubmit} className="relative mb-12">
             <Input
-              type="url"
+              type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Enter your URL here..."

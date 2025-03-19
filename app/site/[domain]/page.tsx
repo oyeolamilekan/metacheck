@@ -5,5 +5,5 @@ export default function SitePage({
 }: {
   params: { domain: string }
 }) {
-  return <LinkPreviewerV2 initialUrl={`https://${params.domain}`} />
+  return <LinkPreviewerV2 initialUrl={params.domain} />
 }
