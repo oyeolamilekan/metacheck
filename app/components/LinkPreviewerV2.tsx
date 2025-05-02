@@ -1,14 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ThemeProvider } from "next-themes"
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query"
 import { fetchMetadata } from "../actions/fetchMetadata"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { ToggleTheme } from "./ToggleTheme"
-import { Package, Send, AlertCircle, Github } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Package, AlertCircle, Github } from "lucide-react"
 import GooglePreview from "./previews/GooglePreview"
 import TwitterPreview from "./previews/TwitterPreview"
 import FacebookPreview from "./previews/FacebookPreview"
@@ -18,25 +16,26 @@ import TelegramPreview from "./previews/TelegramPreview"
 import DuckDuckGoPreview from "./previews/DuckDuckGoPreview"
 import DiscordPreview from "./previews/DiscordPreview"
 import MastodonPreview from "./previews/MastodonPreview"
+import { UrlInputForm } from "./UrlInputForm"
 
 const queryClient = new QueryClient()
 
-const normalizeUrl = (inputUrl: string) => {
+// Removes scheme and trailing slashes from the URL
+const cleanUrl = (inputUrl: string) => {
   if (!inputUrl) return ""
-  
-  // Remove any existing scheme
-  let cleanUrl = inputUrl.replace(/^(https?:\/\/)/i, '')
-  
-  // Remove any trailing slashes
-  cleanUrl = cleanUrl.replace(/\/$/, '')
-  
-  // Add https:// scheme
-  return `https://${cleanUrl}`
+  return inputUrl.replace(/^(https?:\/\/)/i, '').replace(/\/$/, '')
+}
+
+// Adds https:// to the cleaned URL
+const normalizeUrl = (inputUrl: string) => {
+  const cleaned = cleanUrl(inputUrl)
+  return cleaned ? `https://${cleaned}` : ""
 }
 
 function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
-  const [url, setUrl] = useState(normalizeUrl(initialUrl))
-  const normalizedInitialUrl = normalizeUrl(initialUrl)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [url, setUrl] = useState(cleanUrl(initialUrl))
 
   const {
     data: metadata,
@@ -47,18 +46,40 @@ function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
   } = useQuery({
     queryKey: ["metadata", normalizeUrl(url)],
     queryFn: () => fetchMetadata(normalizeUrl(url)),
-    enabled: !!normalizedInitialUrl,
+    enabled: !!url,
   })
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value
+    setUrl(input)
+
+    if (!input.trim()) {
+      // Remove the "url" parameter from the query string if the input is empty
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete("url")
+      router.replace(`?${params.toString()}`)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const input = url.trim()
     if (input) {
-      const normalizedUrl = normalizeUrl(input)
-      setUrl(normalizedUrl)
+      const normalized = normalizeUrl(input)
+      setUrl(normalized) // Keep the normalized URL in the input field
+      router.push(`?url=${encodeURIComponent(cleanUrl(input))}`) // Add the cleaned URL to the query string
       refetch()
     }
   }
+
+  useEffect(() => {
+    const urlParam = searchParams.get("url")
+    if (urlParam) {
+      const normalized = normalizeUrl(urlParam)
+      setUrl(normalized) // Set the normalized URL in the input field
+      refetch()
+    }
+  }, [searchParams, refetch])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
@@ -95,33 +116,12 @@ function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
           </div>
 
           {/* URL Input Form */}
-          <form onSubmit={handleSubmit} className="relative mb-12">
-            <Input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="Enter your URL here..."
-              className="w-full h-14 pl-4 pr-12 bg-white dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 transition-all"
-              required
-            />
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className={cn(
-                "absolute right-2 top-2 h-10 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg transition-all",
-                isLoading && "opacity-50",
-              )}
-            >
-              {isLoading ? (
-                "Loading..."
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Preview
-                </>
-              )}
-            </Button>
-          </form>
+          <UrlInputForm
+            url={url}
+            onChange={handleInputChange}
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+          />
 
           {/* Error Message */}
           {isError && (
@@ -153,9 +153,9 @@ function LinkPreviewerContent({ initialUrl = "" }: { initialUrl?: string }) {
 
         {/* Footer */}
         <footer className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-          Made by <a 
-            href="https://mvp.appstate.co/" 
-            target="_blank" 
+          Made by <a
+            href="https://mvp.appstate.co/"
+            target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline-offset-4 hover:underline"
           >
