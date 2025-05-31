@@ -155,6 +155,10 @@ To run this project locally:
 
 Contributions are welcome! If you have ideas for improvements or find any bugs, please open an issue or submit a pull request.
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
 Made by [Appstate](https://mvp.appstate.co/)
